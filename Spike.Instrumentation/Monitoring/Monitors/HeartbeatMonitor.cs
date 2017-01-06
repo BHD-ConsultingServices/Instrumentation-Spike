@@ -1,0 +1,86 @@
+﻿
+namespace Spike.Instrumentation.Monitoring.Monitors
+{
+    using System;
+    using System.Collections.Generic;
+    using System.Diagnostics;
+    using System.Linq;
+    using System.Threading;
+
+    public class HeartbeatMonitor : MonitorBase
+    {
+        private const int HeartBeatIntervalInSeconds = 1;
+        public const string HeartbeatName = "Heartbeat";
+
+        private TimerHelper _timerHelper;
+        private Stopwatch _stopWatch;
+
+        public HeartbeatMonitor(string categoryName) : base(categoryName)
+        {
+        }
+
+        private void OnHeartbeat(object state)
+        {
+            var instance = (HeartbeatMonitor)state;
+            instance._stopWatch.Stop();
+            var numberOfTicks = instance._stopWatch.ElapsedTicks;
+            instance.Counters.Single(c => c.CounterName == instance.HeartBeatData.CounterName).IncrementBy(numberOfTicks);
+            if (instance.IsThreadActive)
+            {
+                instance._stopWatch = Stopwatch.StartNew();
+            }
+        }
+
+        public bool IsThreadActive
+        {
+            get
+            {
+                return Thread.CurrentThread.ThreadState == System.Threading.ThreadState.Background || Thread.CurrentThread.ThreadState == System.Threading.ThreadState.Running;
+            }
+
+        }
+        
+        private CounterCreationData _heartBeatData;
+
+        private CounterCreationData HeartBeatData
+        {
+            get
+            {
+                if (_heartBeatData != null)
+                {
+                    return _heartBeatData;
+                }
+
+                return _heartBeatData = new CounterCreationData
+                {
+                    CounterName = HeartbeatName,
+                    CounterType = PerformanceCounterType.CounterTimer
+                };
+            }
+        }
+
+        public void StartTimer(int interval)
+        {
+            _stopWatch = Stopwatch.StartNew();
+            _timerHelper.Start(TimeSpan.FromSeconds(interval), true);
+        }
+
+        public override void IntializeMonitor()
+        {
+
+
+            _timerHelper = new TimerHelper();
+            _timerHelper.TimerEvent += (timer, state) => OnHeartbeat(this);
+
+            StartTimer(HeartBeatIntervalInSeconds);
+        }
+
+        protected override List<CounterCreationData> CounterDataToRegister()
+        {
+            return new List<CounterCreationData>
+            {
+                HeartBeatData
+            };
+        }
+    }
+}
