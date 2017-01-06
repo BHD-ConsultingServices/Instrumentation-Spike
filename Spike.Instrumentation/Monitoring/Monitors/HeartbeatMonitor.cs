@@ -23,22 +23,13 @@ namespace Spike.Instrumentation.Monitoring.Monitors
         {
             var instance = (HeartbeatMonitor)state;
             instance._stopWatch.Stop();
+
             var numberOfTicks = instance._stopWatch.ElapsedTicks;
             instance.Counters.Single(c => c.CounterName == instance.HeartBeatData.CounterName).IncrementBy(numberOfTicks);
-            if (instance.IsThreadActive)
-            {
-                instance._stopWatch = Stopwatch.StartNew();
-            }
+
+            instance._stopWatch = Stopwatch.StartNew();
         }
 
-        public bool IsThreadActive
-        {
-            get
-            {
-                return Thread.CurrentThread.ThreadState == System.Threading.ThreadState.Background || Thread.CurrentThread.ThreadState == System.Threading.ThreadState.Running;
-            }
-
-        }
         
         private CounterCreationData _heartBeatData;
 
@@ -67,8 +58,6 @@ namespace Spike.Instrumentation.Monitoring.Monitors
 
         public override void IntializeMonitor()
         {
-
-
             _timerHelper = new TimerHelper();
             _timerHelper.TimerEvent += (timer, state) => OnHeartbeat(this);
 

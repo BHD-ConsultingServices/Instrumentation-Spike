@@ -8,7 +8,7 @@ namespace Spike.Providers
     {
         private const string PaymentEventCounterName = "Payments";
  
-        public AppTelemetry() : base("PayM8.Spike", "Custom PayM8 Counters.") { }
+        public AppTelemetry() : base("Spike.Counters", "This is the main console spike") { }
 
         private static AppTelemetry _instance;
         public static AppTelemetry Instance
@@ -26,9 +26,9 @@ namespace Spike.Providers
 
         private void Initalize()
         {
-            PaymentMonitor = AddTwoStateMonitor(PaymentEventCounterName);
             HeartbeatMonitor = AddHeartBeatMonitor();
-
+            PaymentMonitor = AddTwoStateMonitor(PaymentEventCounterName);
+            
             RegisterCounters();
         }
 

@@ -9,7 +9,7 @@ namespace Spike.Providers
         public const string NotificationQueueName = "NotificationQueueSize";
         
         public NotificationThreadTelemetry() 
-            : base("PayM8.Spike.Notification", "This is the health monitor for the notification thread")
+            : base("Spike.Counters.Notification", "This is the health monitor for the notification thread")
         {
             HeartbeatMonitor = AddHeartBeatMonitor();
             NotificationQueueMonitor = AddBasicMonitor(NotificationQueueName);
