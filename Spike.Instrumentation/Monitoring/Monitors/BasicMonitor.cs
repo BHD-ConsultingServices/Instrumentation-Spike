@@ -40,7 +40,7 @@ namespace Spike.Instrumentation.Monitoring.Monitors
             }
             catch (Exception ex)
             {
-                // this.LogError("Error Increment counter '{0}' by '{1}' - {2}", counterName, value, ex.Message);
+                // Log error
             }
         }
 
@@ -52,7 +52,20 @@ namespace Spike.Instrumentation.Monitoring.Monitors
             }
             catch (Exception ex)
             {
-                // this.LogError("Error Increment counter '{0}' by '{1}' - {2}", counterName, value, ex.Message);
+                // Log error
+            }
+        }
+
+        public void Decrement(long value = 1)
+        {
+            try
+            {
+                var decriment = -1 * value;
+                this.Counters.Single(c => c.CounterName == BasicCounterData.CounterName).IncrementBy(decriment);
+            }
+            catch (Exception ex)
+            {
+                // Log error
             }
         }
 
