@@ -13,3 +13,15 @@ Basic Types
 Complex Monitors
 - Two State:              This minitors used various basic counters to track behavior of an event that can have two states i.e. sucess or failure.
 
+Imagine you want the following telematry when making payments (Two State Monitor):
+- How many successes since last service restart
+- How many failures since last service restart
+- What is the average successes (Updated every minute) for last hour
+- What is the average failures (Updated every minute) for last hour
+- When was the last success?
+- How many consequetive failures are there?
+
+
+You can acomlish this by adding the following two lines in the correct place in your code:
+AppTelemetry.Instance.PaymentMonitor.Success();
+AppTelemetry.Instance.PaymentMonitor.Failure();
