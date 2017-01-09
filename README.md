@@ -24,5 +24,7 @@ Imagine you want the following telematry when making payments (Two State Monitor
 
 You can acomlish this by adding the following two lines in the correct place in your code:
 
+
 AppTelemetry.Instance.PaymentMonitor.Success();
+
 AppTelemetry.Instance.PaymentMonitor.Failure();
