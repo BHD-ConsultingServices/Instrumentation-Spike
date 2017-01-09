@@ -5,7 +5,6 @@ namespace Spike.Instrumentation.Monitoring.Monitors
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
-    using System.Threading;
 
     public class HeartbeatMonitor : MonitorBase
     {

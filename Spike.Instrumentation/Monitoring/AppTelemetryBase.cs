@@ -30,9 +30,9 @@ namespace Spike.Instrumentation.Monitoring
             CategoryDescription = description;
         }
 
-        protected TwoStateMonitor AddTwoStateMonitor(string monitorName)
+        protected TwoStateMonitor AddTwoStateMonitor(string monitorName, IntervalType averageInterval)
         {
-            var monitor = new TwoStateMonitor(CategoryName, monitorName);
+            var monitor = new TwoStateMonitor(CategoryName, monitorName, averageInterval);
             _registeredMonitors.Add(monitor);
 
             return monitor;

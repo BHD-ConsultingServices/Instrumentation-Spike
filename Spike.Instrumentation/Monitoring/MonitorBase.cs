@@ -1,6 +1,4 @@
 ﻿
-using System.Diagnostics.PerformanceData;
-
 namespace Spike.Instrumentation.Monitoring
 {
     using System.Collections.Generic;
@@ -10,7 +8,7 @@ namespace Spike.Instrumentation.Monitoring
     {
         public string CategoryName { get; }
 
-        public string SubCategoryName { get; }
+        public string SubCategoryName { get; set; }
 
         public readonly IEnumerable<CounterCreationData> CounterData;
 

@@ -41,12 +41,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Monitoring\AppTelemetryBase.cs" />
+    <Compile Include="Monitoring\Monitors\AverageMonitor.cs" />
     <Compile Include="Monitoring\Monitors\BasicMonitor.cs" />
+    <Compile Include="Monitoring\Monitors\CriticalErrorMonitor.cs" />
     <Compile Include="Monitoring\Monitors\HeartbeatMonitor.cs" />
     <Compile Include="Monitoring\MonitorBase.cs" />
-    <Compile Include="Monitoring\Monitors\IntervalType.cs" />
+    <Compile Include="Monitoring\IntervalType.cs" />
     <Compile Include="Monitoring\Monitors\PulseMonitor.cs" />
     <Compile Include="Monitoring\Monitors\TwoStateMonitor.cs" />
+    <Compile Include="Monitoring\LoopQueue.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TimerHelper.cs" />
   </ItemGroup>

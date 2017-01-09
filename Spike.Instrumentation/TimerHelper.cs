@@ -3,29 +3,26 @@ namespace Spike.Instrumentation
 {
     using System;
     using System.Threading;
-
     public class TimerHelper
     {
-        private static TimeSpan _timeout = TimeSpan.FromSeconds(1);
+        public Timer Timer;
+        private static readonly TimeSpan Timeout = TimeSpan.FromSeconds(1);
+        private readonly object _threadLock = new object();
+        public event Action<Timer, object> TimerEvent;
 
-        public Thread origiatingThread { get; private set; }
+        public Thread OrigiatingThread { get; private set; }
 
         public TimerHelper()
         {
-            origiatingThread = Thread.CurrentThread;
+            OrigiatingThread = Thread.CurrentThread;
         }
-
-        public Timer Timer;
-        private readonly object _threadLock = new object();
-
-        public event Action<Timer, object> TimerEvent;
 
         public void Start(TimeSpan timerInterval, bool triggerAtStart = false,
             object state = null)
         {
             Stop();
             Timer = new Timer(Timer_Elapsed, state,
-                Timeout.Infinite, Timeout.Infinite);
+                System.Threading.Timeout.Infinite, System.Threading.Timeout.Infinite);
 
             if (triggerAtStart)
             {
@@ -39,7 +36,7 @@ namespace Spike.Instrumentation
 
         public void Stop(TimeSpan? timeout = null)
         {
-            timeout = timeout ?? _timeout;
+            timeout = timeout ?? Timeout;
 
             lock (_threadLock)
             {
@@ -70,9 +67,9 @@ namespace Spike.Instrumentation
                     if (Timer == null)
                         return;
                     
-                    var isRunning = (origiatingThread.ThreadState == ThreadState.Background 
-                        || origiatingThread.ThreadState == ThreadState.Running 
-                        || origiatingThread.ThreadState == ThreadState.WaitSleepJoin);
+                    var isRunning = (OrigiatingThread.ThreadState == ThreadState.Background 
+                        || OrigiatingThread.ThreadState == ThreadState.Running 
+                        || OrigiatingThread.ThreadState == ThreadState.WaitSleepJoin);
 
                     if (!isRunning || timerEvent == null)
                     {

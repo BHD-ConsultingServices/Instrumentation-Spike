@@ -8,7 +8,7 @@ namespace Spike.Instrumentation.Monitoring.Monitors
 
     public class TwoStateMonitor : MonitorBase
     {
-        private const int AverageIntervalInSeconds = 1 * 60;
+        private const int AverageIntervalInMinutes = 1;
 
         private const string SuccessCounterName = "Success";
         private const string FailureCounterName = "Failure";
@@ -16,9 +16,12 @@ namespace Spike.Instrumentation.Monitoring.Monitors
         private const string AverageFailureCounterName = "FailureAverage";
         private const string LastSuccessCounterName = "LastSuccessPulse";
         private const string ConsecutiveFailuresCounterName = "ConsecutiveFailures";
-        
-        public TwoStateMonitor(string categoryName, string subCategoryName)
-           : base(categoryName, subCategoryName) { }
+
+        public TwoStateMonitor(string categoryName, string subCategoryName, IntervalType averagePeriod)
+            : base(categoryName, subCategoryName)
+        {
+            _averagePeriod = averagePeriod;
+        }
 
         private CounterCreationData _successCounterData;
         private CounterCreationData _failureCounterData;
@@ -29,6 +32,10 @@ namespace Spike.Instrumentation.Monitoring.Monitors
 
         private int _numberOfSuccesses;
         private int _numberOfFailures;
+
+        private readonly IntervalType _averagePeriod;
+        private LoopQueue _successQueue;
+        private LoopQueue _failureQueue;
 
         private TimerHelper _timerHelper;
         private DateTime _lastSuccessActivity;
@@ -208,47 +215,31 @@ namespace Spike.Instrumentation.Monitoring.Monitors
             }
         }
 
-        private int GetAverageSuccessForPeriod()
-        {
-            // TODO: Average = Sum of items in queue
-
-            return _numberOfSuccesses;
-        }
-
-        private int GetAverageFailureForPeriod()
-        {
-            // TODO: Average = Sum of items in queue
-
-            return _numberOfFailures;
-        }
-
         private void OnAverageTic(object state)
         {
             var instance = (TwoStateMonitor) state;
 
-            /* TODO: Read average from sum of items in queue (Success & Failure)
-             * 1. Push (number of success/failures since last tic) to int queue
-             * 2. If int queue length >= (IntervalType / AverageIntervalInSeconds) then pop oldest item in queue
-             */
+            var averageSuccess = instance._successQueue.IntervalTic(ref _numberOfSuccesses);
+            var averageFailure = instance._failureQueue.IntervalTic(ref _numberOfFailures);
 
-            instance.SetCounter(AverageSuccessesCounterData.CounterName, GetAverageSuccessForPeriod());
-            instance.SetCounter(AverageFailuresCounterData.CounterName, GetAverageFailureForPeriod());
-
-            instance._numberOfSuccesses = 0;
-            instance._numberOfFailures = 0;
+            instance.SetCounter(AverageSuccessesCounterData.CounterName, averageSuccess);
+            instance.SetCounter(AverageFailuresCounterData.CounterName, averageFailure);
         }
 
-        public void StartTimer(int interval)
+        public void StartTimer(int intervalInMinutes)
         {
-            _timerHelper.Start(TimeSpan.FromSeconds(interval), true);
+            _timerHelper.Start(TimeSpan.FromMinutes(intervalInMinutes), true);
         }
 
         public override void IntializeMonitor()
         {
+            _successQueue = new LoopQueue(_averagePeriod, AverageIntervalInMinutes);
+            _failureQueue = new LoopQueue(_averagePeriod, AverageIntervalInMinutes);
+
             _timerHelper = new TimerHelper();
             _timerHelper.TimerEvent += (timer, state) => OnAverageTic(this);
 
-            StartTimer(AverageIntervalInSeconds);
+            StartTimer(AverageIntervalInMinutes);
         }
 
         public void Success(int incrementBy = 1)
@@ -270,9 +261,9 @@ namespace Spike.Instrumentation.Monitoring.Monitors
         {
             Console.WriteLine("Failure {0}", this.CategoryName);
 
+            _numberOfFailures++;
             this.IncrementCounter(FailureCounterData.CounterName, incrementBy);
             this.IncrementCounter(ConsecutiveFailureCounterData.CounterName, incrementBy);
-            _numberOfFailures++;
         }
 
         protected override List<CounterCreationData> CounterDataToRegister()
