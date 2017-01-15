@@ -10,10 +10,23 @@ namespace Spike.Instrumentation.Monitoring
     {
         private readonly List<MonitorBase> _registeredMonitors = new List<MonitorBase>();
 
+        public HeartbeatMonitor HeartbeatMonitor { get; set; }
+
         public string CategoryDescription { get; }
 
         public string CategoryName { get;}
-        
+
+        protected AppTelemetryBase(string categoryName, string description, bool createHeartBeat = true)
+        {
+            CategoryName = categoryName;
+            CategoryDescription = description;
+
+            if (createHeartBeat)
+            {
+                HeartbeatMonitor = AddHeartBeatMonitor();
+            }
+        }
+
         private bool IsAdministrator 
         {
             get
@@ -22,12 +35,6 @@ namespace Spike.Instrumentation.Monitoring
                 var principal = new WindowsPrincipal(identity);
                 return principal.IsInRole(WindowsBuiltInRole.Administrator);
             }
-        }
-
-        protected AppTelemetryBase(string categoryName, string description)
-        {
-            CategoryName = categoryName;
-            CategoryDescription = description;
         }
 
         protected TwoStateMonitor AddTwoStateMonitor(string monitorName, IntervalType averageInterval)

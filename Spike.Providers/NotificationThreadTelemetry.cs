@@ -11,14 +11,11 @@ namespace Spike.Providers
         public NotificationThreadTelemetry() 
             : base("Spike.Counters.Notification", "This is the health monitor for the notification thread")
         {
-            HeartbeatMonitor = AddHeartBeatMonitor();
             NotificationQueueMonitor = AddBasicMonitor(NotificationQueueName);
 
             RegisterCounters();
             StartMonitoring();
         }
-
-        public HeartbeatMonitor HeartbeatMonitor { get; set; }
 
         public BasicMonitor NotificationQueueMonitor { get; set; }
     }

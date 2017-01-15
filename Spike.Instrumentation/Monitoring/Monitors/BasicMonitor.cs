@@ -44,6 +44,18 @@ namespace Spike.Instrumentation.Monitoring.Monitors
             }
         }
 
+        public void Reset()
+        {
+            try
+            {
+                this.Counters.Single(c => c.CounterName == BasicCounterData.CounterName).RawValue = 0;
+            }
+            catch (Exception ex)
+            {
+                // Log error
+            }
+        }
+
         public void Increment(long value = 1)
         {
             try

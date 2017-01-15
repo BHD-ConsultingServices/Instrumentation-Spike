@@ -26,14 +26,12 @@ namespace Spike.Providers
 
         private void Initalize()
         {
-            HeartbeatMonitor = AddHeartBeatMonitor();
+            
             PaymentMonitor = AddTwoStateMonitor(PaymentEventCounterName, IntervalType.FiveMinutes);
             
             RegisterCounters();
         }
 
         public TwoStateMonitor PaymentMonitor { get; set; }
-
-        public HeartbeatMonitor HeartbeatMonitor { get; set; }
     }
 }
