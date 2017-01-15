@@ -10,7 +10,20 @@ namespace Spike.Instrumentation.Monitoring
 
         public string SubCategoryName { get; set; }
 
-        public readonly IEnumerable<CounterCreationData> CounterData;
+        private IEnumerable<CounterCreationData> _counterData;
+
+        public IEnumerable<CounterCreationData> CounterData
+        {
+            get
+            {
+                if (_counterData != null)
+                {
+                    return _counterData;
+                }
+
+                return _counterData = CounterDataToRegister();
+            }
+        }
 
         private List<PerformanceCounter> _counter;
         
@@ -52,9 +65,6 @@ namespace Spike.Instrumentation.Monitoring
         {
             this.CategoryName = categoryName;
             this.SubCategoryName = subCategoryName;
-
-            // ReSharper disable once VirtualMemberCallInConstructor
-            this.CounterData = CounterDataToRegister();
         }
     }
 }
