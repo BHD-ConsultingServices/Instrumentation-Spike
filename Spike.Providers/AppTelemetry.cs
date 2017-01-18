@@ -11,6 +11,7 @@ namespace Spike.Providers
         public AppTelemetry() : base("Spike.Counters", "This is the main console spike") { }
 
         private static AppTelemetry _instance;
+
         public static AppTelemetry Instance
         {
             get
@@ -18,20 +19,16 @@ namespace Spike.Providers
                 if (_instance != null) return _instance;
 
                 _instance = new AppTelemetry();
-                _instance.Initalize();
 
                 return _instance;
             }
         }
 
-        private void Initalize()
-        {
-            
-            PaymentMonitor = AddTwoStateMonitor(PaymentEventCounterName, IntervalType.FiveMinutes);
-            
-            RegisterCounters();
-        }
-
         public TwoStateMonitor PaymentMonitor { get; set; }
+
+        protected override void RegisterMonitors()
+        {
+            PaymentMonitor = AddTwoStateMonitor(PaymentEventCounterName, IntervalType.FiveMinutes);
+        }
     }
 }

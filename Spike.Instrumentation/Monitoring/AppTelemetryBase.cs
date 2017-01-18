@@ -6,15 +6,20 @@ namespace Spike.Instrumentation.Monitoring
     using System.Security.Principal;
     using Monitors;
 
-    public class AppTelemetryBase
+    public abstract class AppTelemetryBase
     {
         private readonly List<MonitorBase> _registeredMonitors = new List<MonitorBase>();
+
+        private bool _isInitialized = false;
 
         public HeartbeatMonitor HeartbeatMonitor { get; set; }
 
         public string CategoryDescription { get; }
 
         public string CategoryName { get;}
+
+
+        protected abstract void RegisterMonitors();
 
         protected AppTelemetryBase(string categoryName, string description, bool createHeartBeat = true)
         {
@@ -25,6 +30,8 @@ namespace Spike.Instrumentation.Monitoring
             {
                 HeartbeatMonitor = AddHeartBeatMonitor();
             }
+
+            StartMonitoring();
         }
 
         private bool IsAdministrator 
@@ -97,10 +104,17 @@ namespace Spike.Instrumentation.Monitoring
 
         public void StartMonitoring()
         {
+            if (_isInitialized) return;
+
+            RegisterMonitors();
+            RegisterCounters();
+
             foreach (var monitor in _registeredMonitors)
             {
                 monitor.IntializeMonitor();
             }
+
+            _isInitialized = true;
         }
     }
 }
