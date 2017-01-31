@@ -5,6 +5,8 @@ namespace Spike.Providers.Providers
     {
         public bool MakePayment(decimal amount)
         {
+            AppTelemetry.Instance.PaymentMonitor.Attempt();
+
             if (amount < 0)
             {
                 AppTelemetry.Instance.PaymentMonitor.Failure();

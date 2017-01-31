@@ -14,8 +14,10 @@ namespace Spike.Instrumentation.Monitoring.Monitors
         private const string FailureCounterName = "Failure";
         private const string AverageSuccessCounterName = "SuccessAverage";
         private const string AverageFailureCounterName = "FailureAverage";
+        private const string AverageAttemptCounterName = "AttemptsAverage";
         private const string LastSuccessCounterName = "LastSuccessPulse";
         private const string ConsecutiveFailuresCounterName = "ConsecutiveFailures";
+        private const string AttemptCounterName = "Attempt";
 
         public TwoStateMonitor(string categoryName, string subCategoryName, IntervalType averagePeriod)
             : base(categoryName, subCategoryName)
@@ -27,15 +29,19 @@ namespace Spike.Instrumentation.Monitoring.Monitors
         private CounterCreationData _failureCounterData;
         private CounterCreationData _averageSuccessesCounterData;
         private CounterCreationData _averageFailureCounterData;
+        private CounterCreationData _averageAttemptsCounterData;
         private CounterCreationData _consecutivefailureCounterData;
         private CounterCreationData _lastSuccessCounterData;
+        private CounterCreationData _attemptCounterData;
 
         private int _numberOfSuccesses;
         private int _numberOfFailures;
+        private int _numberOfAttempts;
 
         private readonly IntervalType _averagePeriod;
         private LoopQueue _successQueue;
         private LoopQueue _failureQueue;
+        private LoopQueue _attemptsQueue;
 
         private TimerHelper _timerHelper;
         private DateTime _lastSuccessActivity;
@@ -87,7 +93,7 @@ namespace Spike.Instrumentation.Monitoring.Monitors
                 };
             }
         }
-        
+
         private CounterCreationData ConsecutiveFailureCounterData
         {
             get
@@ -98,7 +104,7 @@ namespace Spike.Instrumentation.Monitoring.Monitors
                 }
 
                 var counterName = $"{SubCategoryName}.{ConsecutiveFailuresCounterName}";
-                
+
                 return _consecutivefailureCounterData = new CounterCreationData
                 {
                     CounterName = counterName,
@@ -145,6 +151,25 @@ namespace Spike.Instrumentation.Monitoring.Monitors
             }
         }
 
+        private CounterCreationData AverageAttemptsCounterData
+        {
+            get
+            {
+                if (_averageAttemptsCounterData != null)
+                {
+                    return _averageAttemptsCounterData;
+                }
+
+                var counterName = string.Format("{0}.{1}", SubCategoryName, AverageAttemptCounterName);
+
+                return _averageAttemptsCounterData = new CounterCreationData
+                {
+                    CounterName = counterName,
+                    CounterType = PerformanceCounterType.NumberOfItems32
+                };
+            }
+        }
+
         private CounterCreationData LastSuccessCounterData
         {
             get
@@ -163,6 +188,26 @@ namespace Spike.Instrumentation.Monitoring.Monitors
                 };
             }
         }
+
+        private CounterCreationData AttemptCounterData
+        {
+            get
+            {
+                if (_attemptCounterData != null)
+                {
+                    return _attemptCounterData;
+                }
+
+                var counterName = string.Format("{0}.{1}", SubCategoryName, AttemptCounterName);
+
+                return _attemptCounterData = new CounterCreationData
+                {
+                    CounterName = counterName,
+                    CounterType = PerformanceCounterType.NumberOfItems64
+                };
+            }
+        }
+
 
         private void ResetCounter(string counterName)
         {
@@ -221,9 +266,11 @@ namespace Spike.Instrumentation.Monitoring.Monitors
 
             var averageSuccess = instance._successQueue.IntervalTic(ref _numberOfSuccesses);
             var averageFailure = instance._failureQueue.IntervalTic(ref _numberOfFailures);
+            var averageAttempts = instance._attemptsQueue.IntervalTic(ref _numberOfAttempts);
 
             instance.SetCounter(AverageSuccessesCounterData.CounterName, averageSuccess);
             instance.SetCounter(AverageFailuresCounterData.CounterName, averageFailure);
+            instance.SetCounter(AverageAttemptsCounterData.CounterName, averageAttempts);
         }
 
         public void StartTimer(int intervalInMinutes)
@@ -235,6 +282,8 @@ namespace Spike.Instrumentation.Monitoring.Monitors
         {
             _successQueue = new LoopQueue(_averagePeriod, AverageIntervalInMinutes);
             _failureQueue = new LoopQueue(_averagePeriod, AverageIntervalInMinutes);
+            _attemptsQueue = new LoopQueue(_averagePeriod, AverageIntervalInMinutes);
+
 
             _timerHelper = new TimerHelper();
             _timerHelper.TimerEvent += (timer, state) => OnAverageTic(this);
@@ -266,6 +315,13 @@ namespace Spike.Instrumentation.Monitoring.Monitors
             this.IncrementCounter(ConsecutiveFailureCounterData.CounterName, incrementBy);
         }
 
+        public void Attempt(int incrementBy = 1)
+        {
+            Console.WriteLine("Attempt {0}", CategoryName);
+            _numberOfAttempts += incrementBy;
+            IncrementCounter(AttemptCounterData.CounterName, incrementBy);
+        }
+
         protected override List<CounterCreationData> CounterDataToRegister()
         {
             return new List<CounterCreationData>
@@ -276,7 +332,10 @@ namespace Spike.Instrumentation.Monitoring.Monitors
 
                 FailureCounterData,
                 AverageFailuresCounterData,
-                ConsecutiveFailureCounterData
+                ConsecutiveFailureCounterData,
+
+                AttemptCounterData,
+                AverageAttemptsCounterData
             };
         }
     }
