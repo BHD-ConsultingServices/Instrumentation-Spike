@@ -1,17 +1,16 @@
 ﻿
-using System;
-using System.Linq;
-
 namespace Spike.Instrumentation.Monitoring.Monitors
 {
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System;
+    using System.Linq;
 
     public class CriticalErrorMonitor : MonitorBase
     {
-        public CriticalErrorMonitor(string categoryName, string monitorName) : base(categoryName)
+        public CriticalErrorMonitor(string categoryName, string monitorName) 
+            : base(categoryName, monitorName.ToLower().Contains("critical") ? monitorName : $"Critical{categoryName}")
         {
-            SubCategoryName = monitorName.StartsWith("Critical") ? monitorName : $"Critical{categoryName}";
         }
 
         private CounterCreationData _criticalCounterData;

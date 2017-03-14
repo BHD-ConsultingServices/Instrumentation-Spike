@@ -17,8 +17,7 @@ namespace Spike.Instrumentation.Monitoring
         public string CategoryDescription { get; }
 
         public string CategoryName { get;}
-
-
+        
         protected abstract void RegisterMonitors();
 
         protected AppTelemetryBase(string categoryName, string description, bool createHeartBeat = true)
@@ -100,6 +99,19 @@ namespace Spike.Instrumentation.Monitoring
             var dataCollection = new CounterCreationDataCollection(counterData.ToArray());
 
             PerformanceCounterCategory.Create(CategoryName, CategoryDescription, PerformanceCounterCategoryType.SingleInstance, dataCollection);
+        }
+
+        /// <summary>
+        /// Adds the critical monitor.
+        /// </summary>
+        /// <param name="monitorName">Name of the monitor.</param>
+        /// <returns></returns>
+        protected CriticalErrorMonitor AddCriticalErrorMonitor(string monitorName)
+        {
+            var monitor = new CriticalErrorMonitor(CategoryName, monitorName);
+            _registeredMonitors.Add(monitor);
+
+            return monitor;
         }
 
         public void StartMonitoring()
