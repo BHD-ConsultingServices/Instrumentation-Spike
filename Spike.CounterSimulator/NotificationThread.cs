@@ -8,16 +8,22 @@ namespace Spike.CounterSimulator
     {
         public bool  IsActive;
         private NotificationThreadTelemetry _telemetry;
+        private bool CreateCounters { get; }
+
+        public NotificationThread(bool createCounters)
+        {
+            CreateCounters = createCounters;
+        }
 
         public void IncrementCounter()
         {
-            _telemetry.NotificationQueueMonitor.Increment(5);
+            _telemetry.BasicMonitorInc(NotificationThreadTelemetry.NotificationQueueMonitorName, 5);
         }
 
         public void IntitializeThread()
         {
             IsActive = true;
-            _telemetry = new NotificationThreadTelemetry();
+            _telemetry = new NotificationThreadTelemetry(CreateCounters);
 
             while (IsActive)
             {

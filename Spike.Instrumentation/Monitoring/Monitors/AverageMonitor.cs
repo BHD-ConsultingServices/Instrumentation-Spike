@@ -30,7 +30,7 @@ namespace Spike.Instrumentation.Monitoring.Monitors
                     return _averageCounterData;
                 }
 
-                var counterName = $"{SubCategoryName}";
+                var counterName = $"{MonitorName}";
 
                 return _averageCounterData = new CounterCreationData
                 {

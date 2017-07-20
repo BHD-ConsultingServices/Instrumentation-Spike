@@ -65,7 +65,7 @@ namespace Spike.Instrumentation.Monitoring.Monitors
                     return _successCounterData;
                 }
 
-                var counterName = $"{SubCategoryName}.{SuccessCounterName}";
+                var counterName = $"{MonitorName}.{SuccessCounterName}";
 
                 return _successCounterData = new CounterCreationData
                 {
@@ -84,7 +84,7 @@ namespace Spike.Instrumentation.Monitoring.Monitors
                     return _failureCounterData;
                 }
 
-                var counterName = $"{SubCategoryName}.{FailureCounterName}";
+                var counterName = $"{MonitorName}.{FailureCounterName}";
 
                 return _failureCounterData = new CounterCreationData
                 {
@@ -103,7 +103,7 @@ namespace Spike.Instrumentation.Monitoring.Monitors
                     return _consecutivefailureCounterData;
                 }
 
-                var counterName = $"{SubCategoryName}.{ConsecutiveFailuresCounterName}";
+                var counterName = $"{MonitorName}.{ConsecutiveFailuresCounterName}";
 
                 return _consecutivefailureCounterData = new CounterCreationData
                 {
@@ -122,7 +122,7 @@ namespace Spike.Instrumentation.Monitoring.Monitors
                     return _averageSuccessesCounterData;
                 }
 
-                var counterName = $"{SubCategoryName}.{AverageSuccessCounterName}";
+                var counterName = $"{MonitorName}.{AverageSuccessCounterName}";
 
                 return _averageSuccessesCounterData = new CounterCreationData
                 {
@@ -141,7 +141,7 @@ namespace Spike.Instrumentation.Monitoring.Monitors
                     return _averageFailureCounterData;
                 }
 
-                var counterName = $"{SubCategoryName}.{AverageFailureCounterName}";
+                var counterName = $"{MonitorName}.{AverageFailureCounterName}";
 
                 return _averageFailureCounterData = new CounterCreationData
                 {
@@ -160,7 +160,7 @@ namespace Spike.Instrumentation.Monitoring.Monitors
                     return _averageAttemptsCounterData;
                 }
 
-                var counterName = string.Format("{0}.{1}", SubCategoryName, AverageAttemptCounterName);
+                var counterName = string.Format("{0}.{1}", MonitorName, AverageAttemptCounterName);
 
                 return _averageAttemptsCounterData = new CounterCreationData
                 {
@@ -179,7 +179,7 @@ namespace Spike.Instrumentation.Monitoring.Monitors
                     return _lastSuccessCounterData;
                 }
 
-                var counterName = $"{SubCategoryName}.{LastSuccessCounterName}";
+                var counterName = $"{MonitorName}.{LastSuccessCounterName}";
 
                 return _lastSuccessCounterData = new CounterCreationData
                 {
@@ -198,7 +198,7 @@ namespace Spike.Instrumentation.Monitoring.Monitors
                     return _attemptCounterData;
                 }
 
-                var counterName = string.Format("{0}.{1}", SubCategoryName, AttemptCounterName);
+                var counterName = string.Format("{0}.{1}", MonitorName, AttemptCounterName);
 
                 return _attemptCounterData = new CounterCreationData
                 {

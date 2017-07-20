@@ -5,15 +5,15 @@ namespace Spike.Providers.Providers
     {
         public bool MakePayment(decimal amount)
         {
-            AppTelemetry.Instance.PaymentMonitor.Attempt();
+            AppTelemetry.Instance.TwoStateMonitorAttempt(AppTelemetry.PaymentEventMonitorName);
 
             if (amount < 0)
             {
-                AppTelemetry.Instance.PaymentMonitor.Failure();
+                AppTelemetry.Instance.TwoStateMonitorFailure(AppTelemetry.PaymentEventMonitorName);
                 return false;
             }
 
-            AppTelemetry.Instance.PaymentMonitor.Success();
+            AppTelemetry.Instance.TwoStateMonitorSuccess(AppTelemetry.PaymentEventMonitorName);
             return true;
         }
     }

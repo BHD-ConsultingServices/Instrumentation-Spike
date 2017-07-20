@@ -41,6 +41,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Monitoring\AppTelemetryBase.cs" />
+    <Compile Include="Monitoring\AppTelemetryMonitorEvents.cs" />
     <Compile Include="Monitoring\Monitors\AverageMonitor.cs" />
     <Compile Include="Monitoring\Monitors\BasicMonitor.cs" />
     <Compile Include="Monitoring\Monitors\CriticalErrorMonitor.cs" />

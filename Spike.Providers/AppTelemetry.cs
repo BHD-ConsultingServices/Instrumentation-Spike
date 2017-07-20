@@ -6,7 +6,7 @@ namespace Spike.Providers
 
     public class AppTelemetry : AppTelemetryBase
     {
-        private const string PaymentEventCounterName = "Payments";
+        public const string PaymentEventMonitorName = "Payments";
  
         public AppTelemetry() : base("Spike.Counters", "This is the main console spike") { }
 
@@ -24,11 +24,11 @@ namespace Spike.Providers
             }
         }
 
-        public TwoStateMonitor PaymentMonitor { get; set; }
+        private TwoStateMonitor PaymentMonitor { get; set; }
 
         protected override void RegisterMonitors()
         {
-            PaymentMonitor = AddTwoStateMonitor(PaymentEventCounterName, IntervalType.FiveMinutes);
+            PaymentMonitor = AddTwoStateMonitor(PaymentEventMonitorName, IntervalType.FiveMinutes);
         }
     }
 }

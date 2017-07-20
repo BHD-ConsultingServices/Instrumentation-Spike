@@ -30,7 +30,7 @@ namespace Spike.Instrumentation.Monitoring.Monitors
 
                 return _pulseCounterData = new CounterCreationData
                 {
-                    CounterName = this.SubCategoryName,
+                    CounterName = this.MonitorName,
                     CounterType = PerformanceCounterType.NumberOfItems32
                 };
             }

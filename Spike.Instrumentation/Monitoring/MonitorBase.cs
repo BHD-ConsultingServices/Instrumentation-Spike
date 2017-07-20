@@ -8,7 +8,7 @@ namespace Spike.Instrumentation.Monitoring
     {
         public string CategoryName { get; }
 
-        public string SubCategoryName { get; set; }
+        public string MonitorName { get; set; }
 
         private IEnumerable<CounterCreationData> _counterData;
 
@@ -61,10 +61,10 @@ namespace Spike.Instrumentation.Monitoring
             return counterList;
         }
 
-        protected MonitorBase(string categoryName , string subCategoryName = null)
+        protected MonitorBase(string categoryName , string monitorName = null)
         {
             this.CategoryName = categoryName;
-            this.SubCategoryName = subCategoryName;
+            this.MonitorName = monitorName;
         }
     }
 }

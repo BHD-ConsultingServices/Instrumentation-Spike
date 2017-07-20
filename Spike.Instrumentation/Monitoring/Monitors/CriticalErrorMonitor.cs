@@ -26,7 +26,7 @@ namespace Spike.Instrumentation.Monitoring.Monitors
 
                 return _criticalCounterData = new CounterCreationData
                 {
-                    CounterName = this.SubCategoryName,
+                    CounterName = this.MonitorName,
                     CounterType = PerformanceCounterType.NumberOfItems64
                 };
             }

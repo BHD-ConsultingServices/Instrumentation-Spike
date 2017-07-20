@@ -1,4 +1,6 @@
 ﻿
+using System;
+
 namespace Spike.CounterSimulator
 {
     using Providers;
@@ -6,17 +8,37 @@ namespace Spike.CounterSimulator
 
     public class Program
     {
+        private static bool CreateCounters { get; set; }
+
         public static void Main(string[] args)
         {
-            AppTelemetry.Instance.StartMonitoring();
+            // Only create counters in a controlled way because when deleted they will
+            // break the connection with active monitoring software
+            if (Environment.UserInteractive)
+            {
+                CreateCounters = true;
 
-            var threadManager = new NotificationThread();
+                AppTelemetry.Instance.CreateCountersAllowed = CreateCounters;
+                AppTelemetry.Instance.StartMonitoring();
+                RunAsConsole();
+            }
+            else
+            {
+                AppTelemetry.Instance.StartMonitoring();
+                RunAsService();
+            }
+        }
+
+
+        public static void RunAsConsole()
+        {
+            var threadManager = new NotificationThread(CreateCounters);
             Thread notificationThread = null;
 
             var response = '-';
 
             while (response != 'x')
-            {                
+            {
                 response = char.ToLower(CounterDashboard.UserMenuSelection());
 
                 if (response == '3' && !threadManager.IsActive)
@@ -33,9 +55,9 @@ namespace Spike.CounterSimulator
                 {
                     threadManager.IncrementCounter();
                 }
-                else if(response == '5' && threadManager.IsActive)
+                else if (response == '5' && threadManager.IsActive)
                 {
-                    notificationThread.Abort();
+                    notificationThread?.Abort();
                 }
                 else
                 {
@@ -48,6 +70,11 @@ namespace Spike.CounterSimulator
                 threadManager.Exit();
                 notificationThread.Join();
             }
+        }
+ 
+        public static void RunAsService()
+        {
+            
         }
     }
 }

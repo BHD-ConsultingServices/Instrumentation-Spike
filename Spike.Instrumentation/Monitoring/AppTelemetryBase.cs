@@ -5,14 +5,16 @@ namespace Spike.Instrumentation.Monitoring
     using System.Diagnostics;
     using System.Security.Principal;
     using Monitors;
+    using System.Linq;
 
-    public abstract class AppTelemetryBase
+    public abstract partial class AppTelemetryBase
     {
+        public bool CreateCountersAllowed { get; set; }
+
         private readonly List<MonitorBase> _registeredMonitors = new List<MonitorBase>();
 
         private bool _isInitialized = false;
-
-        public HeartbeatMonitor HeartbeatMonitor { get; set; }
+        
 
         public string CategoryDescription { get; }
 
@@ -20,17 +22,44 @@ namespace Spike.Instrumentation.Monitoring
         
         protected abstract void RegisterMonitors();
 
-        protected AppTelemetryBase(string categoryName, string description, bool createHeartBeat = true)
+        protected AppTelemetryBase(string categoryName, string description, bool registerHeartbeat = true)
         {
             CategoryName = categoryName;
             CategoryDescription = description;
 
-            if (createHeartBeat)
+            if (registerHeartbeat)
             {
-                HeartbeatMonitor = AddHeartBeatMonitor();
+                AddHeartBeatMonitor();
+            }
+        }
+        
+        private T GetMonitorByType<T>(string monitorName)
+           where T : MonitorBase
+        {
+            var monitor = GetMonitor(monitorName);
+
+            if (monitor == null)
+            {
+                //TODO: Add logging
+                // Logger.Warn($"Monitor [{monitorName}] is not a registered monitor in [{CategoryName}]");
+                return null;
             }
 
-            StartMonitoring();
+
+            if (monitor.GetType() == typeof(T))
+            {
+                return monitor as T;
+            }
+
+            //TODO: Add logging
+            // Logger.Warn($"Monitor [{monitorName}] is not a [{typeof(T)}] monitor type");
+
+            return null;
+        }
+        
+        private MonitorBase GetMonitor(string monitorName)
+        {
+            return _registeredMonitors?.FirstOrDefault(mon => mon.MonitorName == monitorName);
         }
 
         private bool IsAdministrator 
@@ -75,31 +104,7 @@ namespace Spike.Instrumentation.Monitoring
             return monitor;
         }
 
-        protected void RegisterCounters()
-        {
-            if (IsAdministrator)
-            {
-                if (PerformanceCounterCategory.Exists(CategoryName))
-                {
-                   PerformanceCounterCategory.Delete(CategoryName);
-                }
-            }
 
-            if (PerformanceCounterCategory.Exists(CategoryName))
-            {
-                return;
-            }
-            
-            var counterData = new List<CounterCreationData>();
-            foreach (var monitor in _registeredMonitors)
-            {
-                counterData.AddRange(monitor.CounterData);
-            }
-
-            var dataCollection = new CounterCreationDataCollection(counterData.ToArray());
-
-            PerformanceCounterCategory.Create(CategoryName, CategoryDescription, PerformanceCounterCategoryType.SingleInstance, dataCollection);
-        }
 
         /// <summary>
         /// Adds the critical monitor.
@@ -113,6 +118,35 @@ namespace Spike.Instrumentation.Monitoring
 
             return monitor;
         }
+        protected void RegisterCounters()
+        {
+            // Logger.Info($"Checking if counters category [{CategoryName}] should be created = [{CreateCountersAllowed && IsAdministrator}]. Required >> CreateCounters [{CreateCountersAllowed}] IsAdministrator [{IsAdministrator}] Exists [{PerformanceCounterCategory.Exists(CategoryName)}]");
+
+            if (CreateCountersAllowed && IsAdministrator)
+            {
+                // Logger.Info($"Counters >> Beginning to removing existing category [{CategoryName}]");
+                if (PerformanceCounterCategory.Exists(CategoryName))
+                {
+                   PerformanceCounterCategory.Delete(CategoryName);
+                }
+            }
+
+            if (!CreateCountersAllowed || PerformanceCounterCategory.Exists(CategoryName)) return;
+
+            // Logger.Info($"Counters >> Beginning creation of a new category [{CategoryName}]");
+
+            var counterData = new List<CounterCreationData>();
+            foreach (var monitor in _registeredMonitors)
+            {
+                counterData.AddRange(monitor.CounterData);
+            }
+
+            var dataCollection = new CounterCreationDataCollection(counterData.ToArray());
+
+            PerformanceCounterCategory.Create(CategoryName, CategoryDescription, PerformanceCounterCategoryType.SingleInstance, dataCollection);
+
+            // Logger.Info($"Counters >> Completed creating category [{CategoryName}]");
+	}
 
         public void StartMonitoring()
         {

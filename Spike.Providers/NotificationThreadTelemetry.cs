@@ -6,18 +6,24 @@ namespace Spike.Providers
 
     public class NotificationThreadTelemetry : AppTelemetryBase
     {
-        public const string NotificationQueueName = "NotificationQueueSize";
+        public const string NotificationQueueMonitorName = "NotificationQueueSize";
         
-        public NotificationThreadTelemetry() 
+        public NotificationThreadTelemetry(bool createCounters) 
             : base("Spike.Counters.Notification", "This is the health monitor for the notification thread")
         {
+
+            if (createCounters)
+            {
+                this.CreateCountersAllowed = true;
+                this.RegisterCounters();
+            }
         }
 
-        public BasicMonitor NotificationQueueMonitor { get; set; }
+        private BasicMonitor NotificationQueueMonitor { get; set; }
 
         protected override void RegisterMonitors()
         {
-            NotificationQueueMonitor = AddBasicMonitor(NotificationQueueName);
+            NotificationQueueMonitor = AddBasicMonitor(NotificationQueueMonitorName);
         }
     }
 }

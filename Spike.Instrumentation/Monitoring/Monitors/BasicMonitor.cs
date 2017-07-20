@@ -26,7 +26,7 @@ namespace Spike.Instrumentation.Monitoring.Monitors
 
                 return _basicCounterData = new CounterCreationData
                 {
-                    CounterName = this.SubCategoryName,
+                    CounterName = this.MonitorName,
                     CounterType = PerformanceCounterType.NumberOfItems64
                 };
             }
@@ -42,6 +42,11 @@ namespace Spike.Instrumentation.Monitoring.Monitors
             {
                 // Log error
             }
+        }
+
+        public long Value
+        {
+            get { return this.Counters.Single(c => c.CounterName == BasicCounterData.CounterName).RawValue; }
         }
 
         public void Reset()
